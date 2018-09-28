@@ -7,7 +7,19 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 
 const cors = require('cors')
-app.use(cors())
+const whitelist = process.env.FRONT_END_URLS.split(",").filter( x => x.trim() )
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin ) {
+      callback(null, true)
+    } else {
+      console.log(`The following tryed to access but was not allowed: ${origin}`)
+      callback('Not allowed by CORS')
+    }
+  }
+}
+
+app.use(cors(corsOptions))
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/AminiaDB' , {useMongoClient : true });
